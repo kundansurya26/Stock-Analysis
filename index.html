@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AlphaVision | Professional Stock Analytics Platform</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f0f2f5;
+      color: #1a1f2e;
+    }
+
+    /* ========== LOGIN PAGE - CORPORATE ========== */
+    .login-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a2a3a 0%, #0f1a24 100%);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo i {
+      font-size: 48px;
+      color: #2563eb;
+      background: #eef2ff;
+      padding: 16px;
+      border-radius: 60px;
+    }
+
+    .login-logo h2 {
+      font-size: 26px;
+      margin-top: 16px;
+      color: #1e293b;
+    }
+
+    .login-logo p {
+      color: #64748b;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 14px;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .login-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .demo-note {
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 24px;
+    }
+
+    /* ========== MAIN APP - PROFESSIONAL DASHBOARD ========== */
+    .main-app {
+      display: none;
+    }
+
+    .main-app.active {
+      display: block;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 32px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-area i {
+      font-size: 28px;
+      color: #2563eb;
+    }
+
+    .logo-area span {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .logo-area small {
+      font-size: 11px;
+      font-weight: 400;
+      color: #64748b;
+      margin-left: 8px;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: #eef2ff;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563eb;
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #e2e8f0;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: #64748b;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    /* Control Bar */
+    .control-bar {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8edf2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    .control-group {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5b6e8c;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-group input, .control-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .control-group input:focus, .control-group select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .primary-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .primary-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .secondary-btn {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Section Tabs - Professional */
+    .section-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+      border-bottom: 2px solid #e8edf2;
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-btn:hover {
+      color: #2563eb;
+    }
+
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    /* Section Panels */
+    .section-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section-panel.active-panel {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Styles */
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8edf2;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eef2f6;
+    }
+
+    .card-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 16px 20px;
+      border-left: 4px solid #2563eb;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5b6e8c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 8px;
+    }
+
+    .kpi-change {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .positive { color: #10b981; }
+    .negative { color: #ef4444; }
+
+    /* Charts Row */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-container {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    canvas {
+      max-height: 280px;
+      width: 100%;
+    }
+
+    /* Data Table */
+    .data-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 14px 12px;
+      text-align: right;
+      border-bottom: 1px solid #eef2f6;
+    }
+
+    .data-table th:first-child, .data-table td:first-child {
+      text-align: left;
+    }
+
+    .data-table th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+      font-size: 12px;
+    }
+
+    .badge {
+      background: #eef2ff;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2563eb;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #94a3b8;
+      font-size: 12px;
+      border-top: 1px solid #e8edf2;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .main-container { padding: 16px; }
+      .top-nav { padding: 0 16px; }
+      .tab-btn { padding: 10px 16px; font-size: 13px; }
+      .kpi-value { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginContainer" class="login-container">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="fas fa-chart-line"></i>
+      <h2>AlphaVision</h2>
+      <p>Professional Stock Analytics Platform</p>
+    </div>
+    <div class="input-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" value="analyst@alphavision.com">
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" value="secure123">
+    </div>
+    <button id="doLogin" class="login-btn"><i class="fas fa-arrow-right-to-bracket"></i> Access Platform</button>
+    <div class="demo-note">Demo credentials: any email/password</div>
+  </div>
+</div>
+
+<!-- MAIN APPLICATION -->
+<div id="mainApp" class="main-app">
+  <nav class="top-nav">
+    <div class="logo-area">
+      <i class="fas fa-chart-line"></i>
+      <span>AlphaVision</span>
+      <small>Professional Terminal</small>
+    </div>
+    <div class="user-area">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <span id="userNameDisplay" style="font-weight: 500;">Analyst</span>
+      <button id="logoutMain" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <!-- Control Bar -->
+    <div class="control-bar">
+      <div class="control-group">
+        <label><i class="fas fa-chart-simple"></i> Symbol</label>
+        <input type="text" id="globalSymbol" value="RELIANCE" placeholder="e.g., RELIANCE, TCS, INFY">
+      </div>
+      <div class="control-group">
+        <label><i class="fas fa-calendar"></i> Period</label>
+        <select id="globalPeriod">
+          <option value="1mo">1 Month</option>
+          <option value="3mo" selected>3 Months</option>
+          <option value="6mo">6 Months</option>
+          <option value="1y">1 Year</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label> </label>
+        <button id="globalRefreshBtn" class="primary-btn"><i class="fas fa-chart-line"></i> Analyze</button>
+      </div>
+      <div class="control-group">
+        <label> </label>
+        <button id="globalResetBtn" class="secondary-btn"><i class="fas fa-undo-alt"></i> Reset</button>
+      </div>
+    </div>
+
+    <!-- Section Navigation Tabs -->
+    <div class="section-tabs">
+      <button class="tab-btn active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+      <button class="tab-btn" data-section="technical"><i class="fas fa-waveform"></i> Technical Analysis</button>
+      <button class="tab-btn" data-section="risk"><i class="fas fa-chart-pie"></i> Risk Metrics</button>
+      <button class="tab-btn" data-section="volume"><i class="fas fa-chart-simple"></i> Volume Profile</button>
+      <button class="tab-btn" data-section="data"><i class="fas fa-table"></i> Historical Data</button>
+    </div>
+
+    <!-- SECTION 1: DASHBOARD (Overview) -->
+    <div id="section-dashboard" class="section-panel active-panel">
+      <div class="kpi-grid" id="dashboardKPIs">
+        <div class="kpi-card"><div class="kpi-label">Last Price</div><div class="kpi-value" id="dashPrice">—</div><div class="kpi-change" id="dashChange">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">20-Day SMA</div><div class="kpi-value" id="dashSMA20">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">50-Day SMA</div><div class="kpi-value" id="dashSMA50">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Period Return</div><div class="kpi-value" id="dashReturn">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Volatility (Ann.)</div><div class="kpi-value" id="dashVol">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3><i class="fas fa-chart-line"></i> Price Evolution & Moving Averages</h3></div>
+        <canvas id="priceChart" height="280"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION 2: TECHNICAL ANALYSIS -->
+    <div id="section-technical" class="section-panel">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">RSI (14)</div><div class="kpi-value" id="techRSI">—</div><div class="kpi-change" id="techRSISignal">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Momentum (10d)</div><div class="kpi-value" id="techMomentum">—</div><div class="kpi-change" id="techMomentumSignal">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Sharpe Ratio</div><div class="kpi-value" id="techSharpe">—</div><div class="kpi-change">Risk-adjusted</div></div>
+        <div class="kpi-card"><div class="kpi-label">Max Drawdown</div><div class="kpi-value" id="techDrawdown">—</div><div class="kpi-change">Peak to trough</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3><i class="fas fa-chart-line"></i> RSI Oscillator (14-period)</h3></div>
+        <canvas id="rsiChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION 3: RISK METRICS -->
+    <div id="section-risk" class="section-panel">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Daily Volatility</div><div class="kpi-value" id="riskDailyVol">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Annualized Vol</div><div class="kpi-value" id="riskAnnualVol">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Positive Days %</div><div class="kpi-value" id="riskPositivePct">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg Daily Return</div><div class="kpi-value" id="riskAvgReturn">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3><i class="fas fa-chart-bar"></i> Daily Returns Distribution</h3></div>
+        <canvas id="returnsHistogram" height="260"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION 4: VOLUME PROFILE -->
+    <div id="section-volume" class="section-panel">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Avg Volume (20d)</div><div class="kpi-value" id="volAvg">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Latest Volume</div><div class="kpi-value" id="volLatest">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">Volume Ratio</div><div class="kpi-value" id="volRatio">—</div><div class="kpi-change">vs. 20d avg</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3><i class="fas fa-chart-simple"></i> Volume History (Last 30 days)</h3></div>
+        <canvas id="volumeChart" height="260"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION 5: HISTORICAL DATA -->
+    <div id="section-data" class="section-panel">
+      <div class="card">
+        <div class="card-header"><h3><i class="fas fa-database"></i> OHLC Data (₹ Indian Rupees)</h3><span class="badge" id="dataSymbolBadge">RELIANCE</span></div>
+        <div class="data-table-wrapper">
+          <table class="data-table" id="historicalTable">
+            <thead><tr><th>Date</th><th>Open (₹)</th><th>High (₹)</th><th>Low (₹)</th><th>Close (₹)</th><th>Volume</th></tr></thead>
+            <tbody id="historicalTableBody"><tr><td colspan="6">Loading data...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <footer>© 2024 AlphaVision — Institutional-grade analytics | Kundan Suryawanshi</footer>
+  </div>
+</div>
+
+<script>
+  // ========== DATA ENGINE ==========
+  function generateMarketData(symbol, periodDays) {
+    let seed = 0;
+    for (let i = 0; i < symbol.length; i++) seed += symbol.charCodeAt(i);
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    function rng() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+    
+    const priceMap = { "RELIANCE": 2530, "TCS": 4020, "INFY": 1500, "HDFC": 1710, "ICICIBANK": 1095, "ITC": 460, "BHARTIARTL": 1140, "WIPRO": 498, "TATAMOTORS": 1005, "AAPL": 175, "MSFT": 330 };
+    let basePrice = priceMap[symbol] || (750 + (symbol.charCodeAt(0) % 450));
+    let startPrice = basePrice;
+    let drift = symbol === "RELIANCE" ? 0.00018 : symbol === "TATAMOTORS" ? 0.00026 : 0.00014;
+    let volatility = symbol === "TATAMOTORS" ? 0.03 : symbol === "RELIANCE" ? 0.022 : 0.021;
+    
+    let price = startPrice;
+    let closes = [], opens = [], highs = [], lows = [], volumes = [], dates = [];
+    let today = new Date();
+    for (let i = periodDays; i >= 0; i--) { let d = new Date(today); d.setDate(today.getDate() - i); dates.push(d.toISOString().slice(0, 10)); }
+    
+    for (let i = 0; i <= periodDays; i++) {
+      if (i === 0) { closes.push(price); continue; }
+      let rand = (rng() + rng() + rng() - 1.5) / 1.3;
+      let ret = (drift - 0.5 * volatility * volatility) + volatility * rand;
+      if (rng() < 0.02) ret += (rng() * 0.04 - 0.02);
+      price = price * Math.exp(ret);
+      closes.push(price);
+    }
+    
+    for (let i = 0; i <= periodDays; i++) {
+      let c = closes[i];
+      let prev = i === 0 ? startPrice : closes[i - 1];
+      let openVal = prev * (1 + (rng() - 0.5) * volatility * 0.45);
+      openVal = Math.min(Math.max(openVal, c * 0.94), c * 1.07);
+      let highVal = Math.max(c, openVal) * (1 + rng() * volatility * 0.75);
+      let lowVal = Math.min(c, openVal) * (1 - rng() * volatility * 0.7);
+      opens.push(parseFloat(openVal.toFixed(2)));
+      highs.push(parseFloat(highVal.toFixed(2)));
+      lows.push(parseFloat(lowVal.toFixed(2)));
+      volumes.push(Math.floor(300000 + rng() * 85000000));
+    }
+    return { dates, closes: closes.map(v => parseFloat(v.toFixed(2))), opens, highs, lows, volumes };
+  }
+
+  // Technical Calculators
+  function computeSMA(data, window) {
+    let res = [];
+    for (let i = 0; i < data.length; i++) {
+      if (i < window - 1) { res.push(null); continue; }
+      let sum = 0;
+      for (let j = i - window + 1; j <= i; j++) sum += data[j];
+      res.push(parseFloat((sum / window).toFixed(2)));
+    }
+    return res;
+  }
+
+  function computeRSI(closes, period = 14) {
+    let gains = [], losses = [];
+    for (let i = 1; i < closes.length; i++) {
+      let diff = closes[i] - closes[i - 1];
+      gains.push(diff > 0 ? diff : 0);
+      losses.push(diff < 0 ? -diff : 0);
+    }
+    let avgGain = gains.slice(0, period).reduce((a, b) => a + b, 0) / period;
+    let avgLoss = losses.slice(0, period).reduce((a, b) => a + b, 0) / period;
+    let rsi = [null];
+    for (let i = period; i < gains.length; i++) {
+      avgGain = (avgGain * (period - 1) + gains[i]) / period;
+      avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
+      let rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+      rsi.push(parseFloat((100 - (100 / (1 + rs))).toFixed(1)));
+    }
+    while (rsi.length < closes.length) rsi.unshift(null);
+    return rsi;
+  }
+
+  function computeMomentum(closes, window = 10) {
+    let mom = [];
+    for (let i = 0; i < closes.length; i++) {
+      if (i < window) mom.push(null);
+      else mom.push(((closes[i] - closes[i - window]) / closes[i - window]) * 100);
+    }
+    return mom;
+  }
+
+  function computeMaxDrawdown(closes) {
+    let peak = closes[0], maxDD = 0;
+    for (let i = 1; i < closes.length; i++) {
+      if (closes[i] > peak) peak = closes[i];
+      let dd = (peak - closes[i]) / peak;
+      if (dd > maxDD) maxDD = dd;
+    }
+    return maxDD * 100;
+  }
+
+  let currentData = null;
+  let priceChart, rsiChart, returnsChart, volumeChart;
+
+  async function refreshAll(symbol, periodStr) {
+    let days = periodStr === '1mo' ? 22 : periodStr === '3mo' ? 63 : periodStr === '6mo' ? 126 : 252;
+    currentData = generateMarketData(symbol, days);
+    let { dates, closes, opens, highs, lows, volumes } = currentData;
+    let returns = [];
+    for (let i = 1; i < closes.length; i++) returns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
+    
+    let sma20 = computeSMA(closes, 20);
+    let sma50 = computeSMA(closes, 50);
+    let rsiArr = computeRSI(closes, 14);
+    let momentumArr = computeMomentum(closes, 10);
+    let lastClose = closes[closes.length - 1];
+    let prevClose = closes[closes.length - 2];
+    let dailyChange = ((lastClose - prevClose) / prevClose) * 100;
+    let totalReturn = ((lastClose - closes[0]) / closes[0]) * 100;
+    let dailyVol = Math.sqrt(returns.reduce((acc, v) => acc + Math.pow(v - returns.reduce((a, b) => a + b, 0) / returns.length, 2), 0) / (returns.length - 1)) * 100;
+    let annualVol = dailyVol * Math.sqrt(252);
+    let avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length * 100;
+    let positiveDays = returns.filter(r => r > 0).length;
+    let sharpe = (avgReturn / 100 * 252) / (annualVol / 100);
+    let maxDrawdown = computeMaxDrawdown(closes);
+    let avgVol = volumes.slice(-20).reduce((a, b) => a + b, 0) / 20;
+    let lastVol = volumes[volumes.length - 1];
+    
+    // Update Dashboard
+    document.getElementById('dashPrice').innerHTML = `₹${lastClose.toFixed(2)}`;
+    document.getElementById('dashChange').innerHTML = `${dailyChange >= 0 ? '▲' : '▼'} ${Math.abs(dailyChange).toFixed(2)}%`;
+    document.getElementById('dashChange').className = `kpi-change ${dailyChange >= 0 ? 'positive' : 'negative'}`;
+    document.getElementById('dashSMA20').innerHTML = `₹${(sma20[sma20.length - 1] || lastClose).toFixed(2)}`;
+    document.getElementById('dashSMA50').innerHTML = `₹${(sma50[sma50.length - 1] || lastClose).toFixed(2)}`;
+    document.getElementById('dashReturn').innerHTML = `${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(2)}%`;
+    document.getElementById('dashVol').innerHTML = `${annualVol.toFixed(2)}%`;
+    
+    // Technical Section
+    let lastRSI = rsiArr[rsiArr.length - 1] || 50;
+    document.getElementById('techRSI').innerHTML = lastRSI;
+    document.getElementById('techRSISignal').innerHTML = lastRSI > 70 ? 'Overbought' : (lastRSI < 30 ? 'Oversold' : 'Neutral');
+    let lastMom = momentumArr[momentumArr.length - 1] || 0;
+    document.getElementById('techMomentum').innerHTML = `${lastMom >= 0 ? '+' : ''}${lastMom.toFixed(2)}%`;
+    document.getElementById('techMomentumSignal').innerHTML = lastMom > 0 ? 'Bullish' : 'Bearish';
+    document.getElementById('techSharpe').innerHTML = sharpe.toFixed(2);
+    document.getElementById('techDrawdown').innerHTML = `${maxDrawdown.toFixed(2)}%`;
+    
+    // Risk Section
+    document.getElementById('riskDailyVol').innerHTML = `${dailyVol.toFixed(2)}%`;
+    document.getElementById('riskAnnualVol').innerHTML = `${annualVol.toFixed(2)}%`;
+    document.getElementById('riskPositivePct').innerHTML = `${((positiveDays / returns.length) * 100).toFixed(1)}%`;
+    document.getElementById('riskAvgReturn').innerHTML = `${avgReturn >= 0 ? '+' : ''}${avgReturn.toFixed(2)}%`;
+    
+    // Volume Section
+    document.getElementById('volAvg').innerHTML = `${(avgVol / 1e6).toFixed(1)}M`;
+    document.getElementById('volLatest').innerHTML = `${(lastVol / 1e6).toFixed(1)}M`;
+    document.getElementById('volRatio').innerHTML = `${(lastVol / avgVol).toFixed(2)}x`;
+    
+    // Data Table
+    document.getElementById('dataSymbolBadge').innerHTML = symbol;
+    let tbody = document.getElementById('historicalTableBody');
+    tbody.innerHTML = '';
+    let startIdx = Math.max(0, dates.length - 15);
+    for (let i = startIdx; i < dates.length; i++) {
+      let row = tbody.insertRow();
+      row.insertCell(0).innerText = dates[i];
+      row.insertCell(1).innerHTML = `₹${opens[i].toFixed(2)}`;
+      row.insertCell(2).innerHTML = `₹${highs[i].toFixed(2)}`;
+      row.insertCell(3).innerHTML = `₹${lows[i].toFixed(2)}`;
+      row.insertCell(4).innerHTML = `₹${closes[i].toFixed(2)}`;
+      row.insertCell(5).innerText = volumes[i].toLocaleString('en-IN');
+    }
+    
+    // Charts
+    if (priceChart) priceChart.destroy();
+    priceChart = new Chart(document.getElementById('priceChart'), {
+      type: 'line', data: { labels: dates, datasets: [
+        { label: 'Close (₹)', data: closes, borderColor: '#2563eb', borderWidth: 2, fill: false, tension: 0.2, pointRadius: 0 },
+        { label: 'SMA 20', data: sma20, borderColor: '#f59e0b', borderWidth: 2, borderDash: [5, 5], fill: false, pointRadius: 0 },
+        { label: 'SMA 50', data: sma50, borderColor: '#10b981', borderWidth: 2, borderDash: [3, 6], fill: false, pointRadius: 0 }
+      ] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+    });
+    
+    if (rsiChart) rsiChart.destroy();
+    rsiChart = new Chart(document.getElementById('rsiChart'), {
+      type: 'line', data: { labels: dates, datasets: [{ label: 'RSI (14)', data: rsiArr, borderColor: '#8b5cf6', borderWidth: 2, fill: false }] },
+      options: { responsive: true, scales: { y: { min: 0, max: 100, grid: { color: '#e2e8f0' } } } }
+    });
+    
+    let retPct = returns.map(r => r * 100);
+    let bins = 12, minR = Math.min(...retPct, -1.5), maxR = Math.max(...retPct, 1.5);
+    let binW = (maxR - minR) / bins;
+    let hist = Array(bins).fill(0), binLabels = [];
+    for (let i = 0; i < bins; i++) { let lo = minR + i * binW, hi = lo + binW; binLabels.push(`${lo.toFixed(1)}%`); for (let v of retPct) if (v >= lo && (i === bins - 1 ? v <= hi : v < hi)) hist[i]++; }
+    if (returnsChart) returnsChart.destroy();
+    returnsChart = new Chart(document.getElementById('returnsHistogram'), {
+      type: 'bar', data: { labels: binLabels, datasets: [{ label: 'Frequency', data: hist, backgroundColor: '#2563eb', borderRadius: 8 }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+    
+    if (volumeChart) volumeChart.destroy();
+    volumeChart = new Chart(document.getElementById('volumeChart'), {
+      type: 'bar', data: { labels: dates.slice(-30), datasets: [{ label: 'Volume', data: volumes.slice(-30), backgroundColor: '#f59e0b', borderRadius: 6 }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+
+  // Navigation
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.section-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      let section = tab.dataset.section;
+      panels.forEach(p => p.classList.remove('active-panel'));
+      document.getElementById(`section-${section}`).classList.add('active-panel');
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Login Logic
+  const loginContainer = document.getElementById('loginContainer');
+  const mainApp = document.getElementById('mainApp');
+  document.getElementById('doLogin').addEventListener('click', () => {
+    let email = document.getElementById('loginEmail').value.trim() || 'Analyst';
+    localStorage.setItem('alphaUser', email);
+    document.getElementById('userNameDisplay').innerHTML = email.split('@')[0];
+    loginContainer.style.display = 'none';
+    mainApp.classList.add('active');
+    refreshAll('RELIANCE', '3mo');
+  });
+  document.getElementById('logoutMain').addEventListener('click', () => {
+    localStorage.removeItem('alphaUser');
+    loginContainer.style.display = 'flex';
+    mainApp.classList.remove('active');
+  });
+  document.getElementById('globalRefreshBtn').addEventListener('click', () => {
+    let sym = document.getElementById('globalSymbol').value.trim().toUpperCase() || 'RELIANCE';
+    let period = document.getElementById('globalPeriod').value;
+    refreshAll(sym, period);
+  });
+  document.getElementById('globalResetBtn').addEventListener('click', () => {
+    document.getElementById('globalSymbol').value = 'RELIANCE';
+    document.getElementById('globalPeriod').value = '3mo';
+    refreshAll('RELIANCE', '3mo');
+  });
+
+  if (localStorage.getItem('alphaUser')) {
+    document.getElementById('userNameDisplay').innerHTML = localStorage.getItem('alphaUser').split('@')[0];
+    loginContainer.style.display = 'none';
+    mainApp.classList.add('active');
+    refreshAll('RELIANCE', '3mo');
+  }
+</script>
+</body>
+</html>
